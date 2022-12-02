@@ -8,8 +8,6 @@ It took me a while to figure out how to make it all fit together though, so I th
 
 ![screencast](shots-filed.gif)
 
-![it goes ding when there's stuff](https://snap.philsnow.io/2022-12-02T15-12-19.m0ghdch67ytzrfugpevt.jpg)
-
 ## But... why?
 
 A core part of my workflow is taking screenshots, annotating them, and uploading them somewhere they can be unfurled in Slack etc.  I prefer not to copy/paste the images directly into Slack because then they can't be easily referred to outside of that Slack team.
@@ -22,13 +20,11 @@ I took a look at [Shottr](https://shottr.cc/) and it does everything I want in t
 
 ## Okay how does this thing work then?
 
-1. launchd has a `QueueDirectories` directive that lets you run something when files arrive in a directory, and Hammerspoon can do more or less anything you want with UI.  [`io.philsnow.shots-filed.eueue`](io.philsnow.shots-filed.queue) is a launchd service that runs a bash script when a queue directory has anything in it.
+1. launchd has a `QueueDirectories` directive that lets you run something when files arrive in a directory.  [`io.philsnow.shots-filed.queue.plist`](io.philsnow.shots-filed.queue.plist) is a launchd service that runs a bash script when a queue directory has anything in it.
 
 1. I set up Shottr to put screen captures into a queue directory, but you can use anything that drops files into that directory.  Keep in mind that they'll be moved away since it's a QueueDirectory.
 
-1. That bash script, [`shots-filed.sh`](shots-filed.sh), uploads anything in the queue directory to s3 and then moves them to an 'done' directory.
-
-1. I have that s3 bucket set up for web hosting (maybe it's through CloudFront?  I honestly don't remember.).
+1. That bash script, [`shots-filed.sh`](shots-filed.sh), uploads anything in the queue directory to an s3 bucket that's set up for web hosting and then moves them to a 'done' directory.
 
 1. [`shots-filed.lua`](shots-filed.lua) has a `hs.pathwatcher` that watches the 'done' directory and when any files are created, it updates its menubar item to show the last 10 uploads and then puts a link to the latest one in the pasteboard.
 
