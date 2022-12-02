@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>io.philsnow.shots-filed.queue</string>
+  <key>ServiceDescription</key>
+  <string>Screenshots publisher</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/philsnow/.shots/shots-filed.sh</string>
+    <string>/Users/philsnow/.shots/inbox</string>
+    <string>/Users/philsnow/.shots/done</string>
+  </array>
+
+  <key>QueueDirectories</key>
+  <array>
+    <string>/Users/philsnow/.shots/inbox</string>
+  </array>
+
+  <!-- you probably don't need these but they can help with debugging
+       launchd environment issues -->
+  <key>StandardOutPath</key>
+  <string>/Users/philsnow/.shots/launchd-queue.stdout</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/philsnow/.shots/launchd-queue.stderr</string>
+
+  <!-- this can help with debugging if the bash script is crashlooping
+  <key>ThrottleInterval</key>
+  <integer>2</integer>
+  -->
+
+</dict>
+</plist>
