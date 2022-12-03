@@ -51,3 +51,6 @@ Oh and while I was working on this I tried putting the plist file in the usual p
 - TODO: requires SF Pro font to be installed(?), choose a better default icon
 - TODO: cache the menubar item thumbnails because 9/10 of them will usually be reused
 - TODO: `shots-filed.lua` will probably choke if you put any files that `hs.image` chokes on
+
+
+![tl;dr](https://snap.philsnow.io/2022-12-02T16-26-49.ay5x2akq3vhvocze4ice.png)
