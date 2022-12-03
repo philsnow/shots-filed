@@ -30,7 +30,9 @@ I took a look at [Shottr](https://shottr.cc/) and it does everything I want in t
 
 Note, there's tons of stuff that's just hard-coded like my username and home directory, s3 bucket name, and that I use `aws-vault`, so nothing will probably work for you out of the box.
 
-Getting everything right with launchd was a pain for me, because I'm not a Mac native and because most of the documentation is under-specified and old.  If you just do `launchd load -w ~/Library/LaunchAgents/...`, `aws-vault` won't be running in the correct "domain" and it won't have access to your keychain.  Instead you have to:
+Getting everything right with launchd was a pain for me, because I'm not a Mac native and because most of the documentation is under-specified and old.  If you just do `launchd load -w ~/Library/LaunchAgents/...`, `aws-vault` won't be running in the correct "domain" and it won't have access to your keychain.  I tried some old advice I found including setting the `SessionCreate` launchd key to true, but that didn't work for me (on 12.16 Monterey).
+
+Instead you have to:
 
 ```
 % # making it go:
@@ -41,6 +43,8 @@ Getting everything right with launchd was a pain for me, because I'm not a Mac n
 % launchctl bootout gui/501 ~/Library/LaunchAgents/io.philsnow.shots-filed.queue.plist
 % launchctl disable user/501/io.philsnow.shots-filed.queue
 ```
+
+Oh and while I was working on this I tried putting the plist file in the usual place where I do work and symlinking it to `~/Library/LaunchAgents/` but that doesn't work, the files there have to be regular files (and have to have reasonable ownership like `0644`).
 
 ## What do now?
 
