@@ -26,7 +26,7 @@ I took a look at [Shottr](https://shottr.cc/) and it does everything I want in t
 
 1. That bash script, [`shots-filed.sh`](shots-filed.sh), uploads anything in the queue directory to an s3 bucket that's set up for web hosting and then moves them to a 'done' directory.
 
-1. [`shots-filed.lua`](shots-filed.lua) has a `hs.pathwatcher` that watches the 'done' directory and when any files are created, it updates its menubar item to show the last 10 uploads and then puts a link to the latest one in the pasteboard.
+1. [`shots-filed.lua`](shots-filed.lua) has a `hs.pathwatcher` that watches the 'done' directory and when any files are created, it updates its menubar item to show the last 10 uploads and then puts a link to the latest one in the pasteboard.  It looks like this: <br><img src="https://snap.philsnow.io/2022-11-30T20-32-19.wn21f8pnm10u9l56qx8p.png" height="350" />
 
 Note, there's tons of stuff that's just hard-coded like my username and home directory, s3 bucket name, and that I use `aws-vault`, so nothing will probably work for you out of the box.
 
