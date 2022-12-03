@@ -69,6 +69,19 @@ function update_menu()
    local menu_contents = {}
    for i=upper,lower,-1 do
       local full_file_path = shots_done_path .. "/" .. all_files[i]
+
+      --[[ I want all images (square, tall, wide) to take up the same
+	 horizontal width in the dropdown, so that all the file names
+	 and images are aligned vertically (it looks like they're
+	 actual columns but it's just because we've contrived the
+	 thumbnails to be a certain size+shape).
+
+	 1. load image, scale proportionally to max_dim -> thumb
+	 2. make a canvas with full alpha that's max_dim.w wide and thumb.h tall
+	 3. include the thumb as the only (image) element of the canvas
+	 4. render a hs.image from the thumb canvas
+	 5. use that uncropped_thumb as the menubar item image
+      --]]
       local full_image = hs.image.imageFromPath(full_file_path)
       local thumb = full_image:copy():size(menubar_max_thumbnail_dimensions)
       local thumb_canvas = hs.canvas.new(
