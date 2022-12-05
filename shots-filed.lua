@@ -91,11 +91,11 @@ function repair_thumb_cache(newest_files)
    thumb_cache = new_cache
 end
 
-local first_run = true
-function update_menu()
-   print("updating menu")
-   all_files = {}
-   num_files = 0
+function get_newest_shots()
+   local newest_files = {}
+
+   local all_files = {}
+   local num_files = 0
    for file in fs.dir(shots_done_path) do
       local full_path = shots_done_path .. "/" .. file
       if fs.attributes(full_path).mode == "file" then
@@ -112,11 +112,18 @@ function update_menu()
       lower = num_files - max_menubar_items
    end
    local upper = num_files
-   local newest_files = {}
    for i=upper,lower,-1 do
       table.insert(newest_files, all_files[i])
    end
 
+   return newest_files
+end
+
+local first_run = true
+function update_menu()
+   print("updating menu")
+
+   local newest_files = get_newest_shots()
    repair_thumb_cache(newest_files)
 
    local menubar_items = {}
