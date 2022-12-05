@@ -16,7 +16,7 @@ local notification_params = {
    title='shots filed',
    informativeText='Link copied to clipboard',
 }
-	    
+
 function make_icon(code)
    local char = hs.styledtext.new(utf8.char(code), { font = { name = "SF Pro", size = 12 } })
    local canvas = hs.canvas.new({ x = 0, y = 0, h = 0, w = 0 })
@@ -33,9 +33,10 @@ local icon_empty_star = make_icon(0x1002C2)
 local icon_half_full_star = make_icon(0x1002C4)
 local icon_full_star = make_icon(0x1002C3)
 
-local inMenuBar = true
-local menu = hs.menubar.new(inMenuBar)
+local in_menu_bar = true
+local menu = hs.menubar.new(in_menu_bar)
 menu:setIcon(icon_empty_star)
+local thumb_cache = {}
 
 -- for changing the menubar icon so that Bartender will un-hide it temporarily
 local icon_emptier = timer.delayed.new(
@@ -44,6 +45,51 @@ local icon_emptier = timer.delayed.new(
       menu:setIcon(icon_empty_star)
    end
 )
+
+function repair_thumb_cache(newest_files)
+   --[[ rebuild the thumb cache with just items that correspond to the
+      files in newest_files.  usually that will reuse n-1 of the items
+      in the old cache.
+   --]]
+   local new_cache = {}
+   for i, file in ipairs(newest_files) do
+      local cached_thumb = thumb_cache[file]
+      if cached_thumb == nil then
+         print("caching thumbnail for file " .. file)
+         -- build a new cache entry for it
+         local full_file_path = shots_done_path .. "/" .. file
+
+         --[[ I want all images (square, tall, wide) to take up the same
+            horizontal width in the dropdown, so that all the file names
+            and images are aligned vertically (it looks like they're
+            actual columns but it's just because we've contrived the
+            thumbnails to be a certain size+shape).
+
+            1. load image, scale proportionally to max_dim -> thumb
+            2. make a canvas with full alpha that's max_dim.w wide and thumb.h tall
+            3. include the thumb as the only (image) element of the canvas
+            4. render a hs.image from the thumb canvas
+            5. use that uncropped_thumb as the menubar item image
+         --]]
+         local full_image = hs.image.imageFromPath(full_file_path)
+         local thumb = full_image:copy():size(menubar_max_thumbnail_dimensions)
+         local thumb_canvas = hs.canvas.new(
+            {
+               w = menubar_max_thumbnail_dimensions.w,
+               h = thumb:size().h
+            }
+         )
+         thumb_canvas:alpha(1.0)
+         thumb_canvas[1] = {
+            type = "image",
+            image = thumb,
+         }
+         cached_thumb = thumb_canvas:imageFromCanvas()
+      end
+      new_cache[file] = cached_thumb
+   end
+   thumb_cache = new_cache
+end
 
 local first_run = true
 function update_menu()
@@ -66,53 +112,31 @@ function update_menu()
       lower = num_files - max_menubar_items
    end
    local upper = num_files
-   local menu_contents = {}
+   local newest_files = {}
    for i=upper,lower,-1 do
-      local full_file_path = shots_done_path .. "/" .. all_files[i]
+      table.insert(newest_files, all_files[i])
+   end
 
-      --[[ I want all images (square, tall, wide) to take up the same
-	 horizontal width in the dropdown, so that all the file names
-	 and images are aligned vertically (it looks like they're
-	 actual columns but it's just because we've contrived the
-	 thumbnails to be a certain size+shape).
+   repair_thumb_cache(newest_files)
 
-	 1. load image, scale proportionally to max_dim -> thumb
-	 2. make a canvas with full alpha that's max_dim.w wide and thumb.h tall
-	 3. include the thumb as the only (image) element of the canvas
-	 4. render a hs.image from the thumb canvas
-	 5. use that uncropped_thumb as the menubar item image
-      --]]
-      local full_image = hs.image.imageFromPath(full_file_path)
-      local thumb = full_image:copy():size(menubar_max_thumbnail_dimensions)
-      local thumb_canvas = hs.canvas.new(
-         {
-            w = menubar_max_thumbnail_dimensions.w,
-            h = thumb:size().h
-         }
-      )
-      thumb_canvas:alpha(1.0)
-      thumb_canvas[1] = {
-         type = "image",
-         image = thumb,
-      }
-      local uncropped_thumb = thumb_canvas:imageFromCanvas()
-
+   local menubar_items = {}
+   for i, file in ipairs(newest_files) do
       table.insert(
-         menu_contents,
+         menubar_items,
          {
-            title = string.gsub(all_files[i], "%..*$", ""),
-            image = uncropped_thumb,
+            title = string.gsub(file, "%..*$", ""),
+            image = thumb_cache[file],
             fn = function()
-               local url = published_url_prefix..all_files[i]
+               local url = published_url_prefix..file
                pasteboard.setContents(url)
-	       hs.notify.new(notification_params)
-		  :contentImage(hs.image.imageFromPath(full_file_path))
-		  :send()
+               hs.notify.new(notification_params)
+                  :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. full_file_path)) -- should this be the thumb?
+                  :send()
             end,
          }
       )
    end
-   menu:setMenu(menu_contents)
+   menu:setMenu(menubar_items)
 
    if first_run then
       -- don't hijack the pasteboard when starting/restarting hammerspoon
@@ -123,8 +147,8 @@ function update_menu()
       pasteboard.setContents(url)
       print("sending notification...")
       hs.notify.new(notification_params)
-	 :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. latest_filename))
-	 :send()
+         :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. latest_filename))
+         :send()
       print("notification sent")
 
       menu:setIcon(icon_full_star)
