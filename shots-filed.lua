@@ -137,7 +137,7 @@ function update_menu()
                local url = published_url_prefix..file
                pasteboard.setContents(url)
                hs.notify.new(notification_params)
-                  :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. file)) -- should this be the thumb?
+                  :contentImage(thumb_cache[file])
                   :send()
             end,
          }
@@ -154,7 +154,7 @@ function update_menu()
       pasteboard.setContents(url)
       print("sending notification...")
       hs.notify.new(notification_params)
-         :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. latest_filename))
+         :contentImage(thumb_cache[latest_filename])
          :send()
       print("notification sent")
 
