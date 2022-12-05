@@ -119,6 +119,11 @@ function get_newest_shots()
    return newest_files
 end
 
+function prettier_time(filename)
+   local file_attributes = fs.attributes(filename)
+   return os.date("%Y-%m-%d %I:%M:%S%p", file_attributes.modification)
+end
+
 local first_run = true
 function update_menu()
    print("updating menu")
@@ -131,7 +136,7 @@ function update_menu()
       table.insert(
          menubar_items,
          {
-            title = string.gsub(file, "%..*$", ""),
+	    title = prettier_time(shots_done_path .. "/" .. file),
             image = thumb_cache[file],
             fn = function()
                local url = published_url_prefix..file
