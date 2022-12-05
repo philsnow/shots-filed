@@ -130,7 +130,7 @@ function update_menu()
                local url = published_url_prefix..file
                pasteboard.setContents(url)
                hs.notify.new(notification_params)
-                  :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. full_file_path)) -- should this be the thumb?
+                  :contentImage(hs.image.imageFromPath(shots_done_path .. "/" .. file)) -- should this be the thumb?
                   :send()
             end,
          }
@@ -142,7 +142,7 @@ function update_menu()
       -- don't hijack the pasteboard when starting/restarting hammerspoon
       first_run = false
    else
-      local latest_filename = all_files[num_files]
+      local latest_filename = newest_files[1]
       local url = published_url_prefix..latest_filename
       pasteboard.setContents(url)
       print("sending notification...")
