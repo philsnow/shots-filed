@@ -3,6 +3,8 @@ TODO:
 - cmd-click menu items -> copy image contents to pasteboard instead of link
 ]]--
 
+local obj = {}
+
 local pasteboard = require("hs.pasteboard")
 local fs = require("hs.fs")
 local timer = require("hs.timer")
@@ -168,7 +170,9 @@ function update_menu()
    end
 end
 
-local pw = hs.pathwatcher.new(shots_done_path, update_menu)
-pw:start()
-
 update_menu()
+
+local pw = hs.pathwatcher.new(shots_done_path, update_menu):start()
+obj.pathwatcher = pw
+
+return obj
